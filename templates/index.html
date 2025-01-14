@@ -3,57 +3,93 @@
 {% block content %}
 <div class="row">
     <div class="col-md-12 mb-4">
-        <div class="card">
+        <div class="card balance-card">
             <div class="card-body">
-                <h5 class="card-title">Solde actuel</h5>
-                <h2 class="{% if balance >= 0 %}text-success{% else %}text-danger{% endif %}">
-                    {{ "%.2f"|format(balance) }} €
-                </h2>
+                <h5 class="card-title text-white">Solde actuel</h5>
+                <h2 class="mb-0">{{ "%.2f"|format(balance) }} €</h2>
             </div>
         </div>
     </div>
 </div>
 
-{% if chart %}
 <div class="row mb-4">
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
-                {{ chart | safe }}
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title">Statistiques</h5>
+                    <div class="btn-group">
+                        <a href="{{ url_for('main.index', chart_type='bar') }}" class="btn btn-chart {% if chart_type == 'bar' %}active{% endif %}">
+                            <i class="fas fa-chart-bar"></i> Barres
+                        </a>
+                        <a href="{{ url_for('main.index', chart_type='pie') }}" class="btn btn-chart {% if chart_type == 'pie' %}active{% endif %}">
+                            <i class="fas fa-chart-pie"></i> Camembert
+                        </a>
+                        <a href="{{ url_for('main.index', chart_type='line') }}" class="btn btn-chart {% if chart_type == 'line' %}active{% endif %}">
+                            <i class="fas fa-chart-line"></i> Ligne
+                        </a>
+                    </div>
+                </div>
+                {{ chart | safe if chart }}
             </div>
         </div>
     </div>
 </div>
-{% endif %}
 
 <div class="row">
     <div class="col-md-12">
-        <h3>Transactions récentes</h3>
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Catégorie</th>
-                        <th>Description</th>
-                        <th>Montant</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for transaction in transactions %}
-                    <tr>
-                        <td>{{ transaction.date.strftime('%d/%m/%Y') }}</td>
-                        <td>{{ transaction.type|title }}</td>
-                        <td>{{ transaction.category|title }}</td>
-                        <td>{{ transaction.description }}</td>
-                        <td class="{% if transaction.type == 'revenu' %}text-success{% else %}text-danger{% endif %}">
-                            {{ "%.2f"|format(transaction.amount) }} €
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title">Transactions récentes</h5>
+                    <a href="{{ url_for('main.add_transaction') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nouvelle transaction
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Catégorie</th>
+                                <th>Description</th>
+                                <th>Montant</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                            <tr>
+                                <td>{{ transaction.date.strftime('%d/%m/%Y') }}</td>
+                                <td>
+                                    <span class="badge {% if transaction.type == 'revenu' %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ transaction.type|title }}
+                                    </span>
+                                </td>
+                                <td>{{ transaction.category|title }}</td>
+                                <td>{{ transaction.description }}</td>
+                                <td class="{% if transaction.type == 'revenu' %}text-success{% else %}text-danger{% endif %}">
+                                    {{ "%.2f"|format(transaction.amount) }} €
+                                </td>
+                                <td>
+                                    <div class="transaction-actions">
+                                        <a href="{{ url_for('main.edit_transaction', id=transaction.id) }}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form action="{{ url_for('main.delete_transaction', id=transaction.id) }}" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
