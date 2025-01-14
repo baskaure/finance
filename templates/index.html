@@ -1,61 +1,39 @@
 {% extends "base.html" %}
 
 {% block content %}
+<!-- Carte du solde actuel avec design amélioré -->
 <div class="row">
     <div class="col-md-12 mb-4">
-        <div class="card balance-card {% if balance >= 0 %}positive{% else %}negative{% endif %}">
-            <div class="balance-content">
-                <h5 class="card-title text-white mb-3">Solde actuel</h5>
-                <p class="balance-amount text-white">{{ "%.2f"|format(balance) }} €</p>
+        <div class="card balance-card {% if balance >= 0 %}positive{% else %}negative{% endif %} shadow-sm">
+            <div class="balance-content p-4">
+                <h5 class="card-title text-white mb-3 fs-4">Solde actuel</h5>
+                <p class="balance-amount text-white display-4 mb-0">{{ "%.2f"|format(balance) }} €</p>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Tableau des transactions déplacé en haut -->
 <div class="row mb-4">
     <div class="col-md-12">
-        <div class="card">
+        <div class="card shadow-sm">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="card-title">Statistiques</h5>
-                    <div class="btn-group">
-                        <a href="{{ url_for('main.index', chart_type='bar') }}" class="btn btn-chart {% if chart_type == 'bar' %}active{% endif %}">
-                            <i class="fas fa-chart-bar"></i> Barres
-                        </a>
-                        <a href="{{ url_for('main.index', chart_type='pie') }}" class="btn btn-chart {% if chart_type == 'pie' %}active{% endif %}">
-                            <i class="fas fa-chart-pie"></i> Camembert
-                        </a>
-                        <a href="{{ url_for('main.index', chart_type='line') }}" class="btn btn-chart {% if chart_type == 'line' %}active{% endif %}">
-                            <i class="fas fa-chart-line"></i> Ligne
-                        </a>
-                    </div>
-                </div>
-                {{ chart | safe if chart }}
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="card-title">Transactions récentes</h5>
-                    <a href="{{ url_for('main.add_transaction') }}" class="btn btn-primary">
+                    <h5 class="card-title fs-4">Transactions récentes</h5>
+                    <a href="{{ url_for('main.add_transaction') }}" class="btn btn-primary btn-lg">
                         <i class="fas fa-plus"></i> Nouvelle transaction
                     </a>
                 </div>
                 <div class="table-responsive">
-                    <table class="table">
-                        <thead>
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
                             <tr>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>Catégorie</th>
-                                <th>Description</th>
-                                <th>Montant</th>
-                                <th>Actions</th>
+                                <th class="border-0">Date</th>
+                                <th class="border-0">Type</th>
+                                <th class="border-0">Catégorie</th>
+                                <th class="border-0">Description</th>
+                                <th class="border-0">Montant</th>
+                                <th class="border-0">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -63,22 +41,31 @@
                             <tr>
                                 <td>{{ transaction.date.strftime('%d/%m/%Y') }}</td>
                                 <td>
-                                    <span class="badge {% if transaction.type == 'revenu' %}bg-success{% else %}bg-danger{% endif %}">
+                                    <span class="badge rounded-pill {% if transaction.type == 'revenu' %}bg-success{% else %}bg-danger{% endif %} px-3 py-2">
                                         {{ transaction.type|title }}
                                     </span>
                                 </td>
-                                <td>{{ transaction.category|title }}</td>
+                                <td>
+                                    <span class="text-muted">{{ transaction.category|title }}</span>
+                                </td>
                                 <td>{{ transaction.description }}</td>
-                                <td class="{% if transaction.type == 'revenu' %}text-success{% else %}text-danger{% endif %}">
+                                <td class="fw-bold {% if transaction.type == 'revenu' %}text-success{% else %}text-danger{% endif %}">
                                     {{ "%.2f"|format(transaction.amount) }} €
                                 </td>
                                 <td>
-                                    <div class="transaction-actions">
-                                        <a href="{{ url_for('main.edit_transaction', id=transaction.id) }}" class="btn btn-sm btn-warning">
+                                    <div class="transaction-actions d-flex gap-2">
+                                        <a href="{{ url_for('main.edit_transaction', id=transaction.id) }}" 
+                                           class="btn btn-sm btn-outline-warning" 
+                                           title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ url_for('main.delete_transaction', id=transaction.id) }}" method="POST" class="d-inline">
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')">
+                                        <form action="{{ url_for('main.delete_transaction', id=transaction.id) }}" 
+                                              method="POST" 
+                                              class="d-inline">
+                                            <button type="submit" 
+                                                    class="btn btn-sm btn-outline-danger" 
+                                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')"
+                                                    title="Supprimer">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
@@ -88,6 +75,36 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistiques déplacées en bas -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title fs-4">Statistiques</h5>
+                    <div class="btn-group">
+                        <a href="{{ url_for('main.index', chart_type='line') }}" 
+                           class="btn btn-chart btn-lg {% if chart_type == 'line' %}active{% endif %}">
+                            <i class="fas fa-chart-line me-2"></i>Ligne
+                        </a>
+                        <a href="{{ url_for('main.index', chart_type='pie') }}" 
+                           class="btn btn-chart btn-lg {% if chart_type == 'pie' %}active{% endif %}">
+                            <i class="fas fa-chart-pie me-2"></i>Camembert
+                        </a>
+                        <a href="{{ url_for('main.index', chart_type='bar') }}" 
+                           class="btn btn-chart btn-lg {% if chart_type == 'bar' %}active{% endif %}">
+                            <i class="fas fa-chart-bar me-2"></i>Barres
+                        </a>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    {{ chart | safe if chart }}
                 </div>
             </div>
         </div>
