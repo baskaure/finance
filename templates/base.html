@@ -7,43 +7,69 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-    </head>
-    <body>
-        <nav class="navbar navbar-expand-lg navbar-dark mb-4">
-            <div class="container">
-                <a class="navbar-brand" href="{{ url_for('main.index') }}">
-                    <i class="fas fa-wallet me-2"></i>Suivi des dépenses
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.add_transaction') }}">
-                                <i class="fas fa-plus me-1"></i>Nouvelle transaction
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    
+</head>
+<body>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.getElementById('theme-toggle');
+            const html = document.documentElement;
+            // Charge la préférence sauvegardée
+            if (localStorage.theme === 'dark') {
+                toggle.checked = true;
+                html.setAttribute('data-theme', 'dark');
+            }
+            toggle.addEventListener('change', () => {
+                if (toggle.checked) {
+                    html.setAttribute('data-theme', 'dark');
+                    localStorage.theme = 'dark';
+                } else {
+                    html.removeAttribute('data-theme');
+                    localStorage.theme = 'light';
+                }
+            });
+        });
+    </script>
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
         <div class="container">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                <i class="fas fa-wallet me-2"></i>Suivi des dépenses
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.add_transaction') }}">
+                            <i class="fas fa-plus me-1"></i>Nouvelle transaction
+                        </a>
+                    </li>
+                    <li class="nav-item ms-3">
+                        <div class="theme-toggle-container d-flex align-items-center">
+                            <input type="checkbox" id="theme-toggle">
+                            <label for="theme-toggle" class="theme-switch ms-2" title="Changer de thème"></label>
                         </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-    
-            {% block content %}{% endblock %}
+                    </li>
+                </ul>
+            </div>
         </div>
-    
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    </body>
-    </html>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
