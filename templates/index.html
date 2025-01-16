@@ -88,10 +88,6 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="card-title fs-4">Statistiques</h5>
                     <div class="btn-group">
-                        <a href="{{ url_for('main.index', chart_type='line') }}" 
-                           class="btn btn-chart btn-lg {% if chart_type == 'line' %}active{% endif %}">
-                            <i class="fas fa-chart-line me-2"></i>Ligne
-                        </a>
                         <a href="{{ url_for('main.index', chart_type='pie') }}" 
                            class="btn btn-chart btn-lg {% if chart_type == 'pie' %}active{% endif %}">
                             <i class="fas fa-chart-pie me-2"></i>Camembert
@@ -100,10 +96,38 @@
                            class="btn btn-chart btn-lg {% if chart_type == 'bar' %}active{% endif %}">
                             <i class="fas fa-chart-bar me-2"></i>Barres
                         </a>
+                        <a href="{{ url_for('main.index', chart_type='scatter') }}" 
+                           class="btn btn-chart btn-lg {% if chart_type == 'scatter' %}active{% endif %}">
+                            <i class="fas fa-chart-scatter me-2"></i>Dispersion
+                        </a>
+                        <a href="{{ url_for('main.index', chart_type='histogram') }}" 
+                           class="btn btn-chart btn-lg {% if chart_type == 'histogram' %}active{% endif %}">
+                            <i class="fas fa-chart-histogram me-2"></i>Histogramme
+                        </a>
+                        <a href="{{ url_for('main.index', chart_type='cumulative') }}" 
+                           class="btn btn-chart btn-lg {% if chart_type == 'cumulative' %}active{% endif %}">
+                            <i class="fas fa-chart-line me-2"></i>Cumulatif
+                        </a>
                     </div>
                 </div>
-                <div class="chart-container">
+                
+                <!-- Chart container with responsive design -->
+                <div class="chart-container" style="position: relative; height:60vh; width:100%">
                     {{ chart | safe if chart }}
+                </div>
+                
+                <!-- Chart legend if needed -->
+                <div class="chart-legend mt-3">
+                    {% if legend %}
+                        <div class="d-flex justify-content-center flex-wrap gap-3">
+                            {% for item in legend %}
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: '{{ item.color }}'"></span>
+                                    <span class="legend-label">{{ item.label }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

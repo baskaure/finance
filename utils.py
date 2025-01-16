@@ -9,94 +9,61 @@ def generate_expense_chart(chart_type='bar'):
     if not transactions:
         return None
         
-    # Création du DataFrame avec toutes les transactions
+    # Create DataFrame
     df = pd.DataFrame([{
         'type': t.type,
-        'amount': t.amount if t.type == 'revenu' else -t.amount,  # Montant négatif pour les dépenses
+        'amount': t.amount if t.type == 'revenu' else -t.amount,
         'category': t.category,
         'date': t.date,
         'month_year': t.date.strftime('%Y-%m')
     } for t in transactions])
     
-    # Trier les transactions par date
     df = df.sort_values('date')
     
-    if chart_type == 'line':
-        # Calculer le solde cumulatif
-        df['balance'] = df['amount'].cumsum()
-        
-        # Créer la figure
-        fig = go.Figure()
-        
-        # Ajouter la ligne du solde
-        fig.add_trace(go.Scatter(
-            x=df['date'],
-            y=df['balance'],
-            mode='lines',
-            name='Solde',
-            line=dict(
-                color='rgb(136, 132, 216)',
-                width=3
-            ),
-            fill='tonexty',
-            fillcolor='rgba(136, 132, 216, 0.1)'
-        ))
-        
-        # Ajouter les points
-        fig.add_trace(go.Scatter(
-            x=df['date'],
-            y=df['balance'],
-            mode='markers',
-            name='Transactions',
-            marker=dict(
-                size=8,
-                color=df['balance'].apply(lambda x: 'green' if x >= 0 else 'red'),
-                line=dict(
-                    color='white',
-                    width=1
-                )
-            ),
-            hovertemplate="<b>Date:</b> %{x|%d/%m/%Y}<br>" +
-                         "<b>Solde:</b> %{y:.2f}€<br>" +
-                         "<extra></extra>"
-        ))
+    if chart_type == 'bar':
+        # Grouper par mois et catégorie pour le graphique en barres
+        monthly_expenses = df[df['amount'] < 0].groupby(['month_year', 'category'])['amount'].sum().abs().reset_index()
+        fig = px.bar(monthly_expenses,
+                    x='month_year',
+                    y='amount',
+                    color='category',
+                    title='Dépenses mensuelles par catégorie',
+                    labels={'amount': 'Montant (€)', 'month_year': 'Mois', 'category': 'Catégorie'})
 
-        # Ligne horizontale à y=0
-        fig.add_hline(
-            y=0,
-            line_width=1,
-            line_dash="dash",
-            line_color="gray",
-            opacity=0.5
-        )
+    elif chart_type == 'scatter':
+        # Graphique de dispersion des dépenses
+        expenses_df = df[df['amount'] < 0].copy()
+        fig = px.scatter(expenses_df,
+                        x='date',
+                        y='amount',
+                        color='category',
+                        size=abs(expenses_df['amount']),
+                        title='Distribution des dépenses',
+                        labels={'amount': 'Montant (€)', 'date': 'Date', 'category': 'Catégorie'})
 
-        # Mise à jour du layout
-        fig.update_layout(
-            title={
-                'text': 'Évolution du solde dans le temps',
-                'y': 0.95,
-                'x': 0.5,
-                'xanchor': 'center',
-                'yanchor': 'top',
-                'font': dict(size=20)
-            },
-            xaxis=dict(
-                title="Date",
-                gridcolor='rgba(128, 128, 128, 0.1)',
-                tickformat='%d/%m/%Y'
-            ),
-            yaxis=dict(
-                title="Solde (€)",
-                ticksuffix="€",
-                zeroline=False
-            ),
-            showlegend=False
-        )
+    elif chart_type == 'histogram':
+        # Histogramme des dépenses
+        expenses_df = df[df['amount'] < 0].copy()
+        fig = px.histogram(expenses_df,
+                          x='amount',
+                          nbins=30,
+                          color='category',
+                          title='Distribution des montants des dépenses',
+                          labels={'amount': 'Montant (€)', 'count': 'Nombre de transactions'})
+
+    elif chart_type == 'cumulative':
+        # Dépenses cumulées
+        df['cumulative'] = df['amount'].cumsum()
+        fig = px.line(df,
+                     x='date',
+                     y='cumulative',
+                     title='Évolution des dépenses cumulées',
+                     labels={'cumulative': 'Montant cumulé (€)', 'date': 'Date'})
 
     elif chart_type == 'pie':
-        # Filtrer uniquement les dépenses pour le camembert
+        # Keep existing pie chart code
         expenses_df = df[df['amount'] < 0].copy()
-        expenses_df['amount'] = expenses_df['amount'].abs()  # Convertir en positif pour l'affichage
+        expenses_df['amount'] = expenses_df['amount'].abs()
         summary = expenses_df.groupby('category')['amount'].sum().reset_index()
         total_expenses = summary['amount'].sum()
         
@@ -110,9 +77,7 @@ def generate_expense_chart(chart_type='bar'):
                 colors=px.colors.qualitative.Set3,
                 line=dict(color='white', width=2)
             ),
-            hovertemplate="<b>%{label}</b><br>" +
-                         "Montant: %{value:.2f}€<br>" +
-                         "Pourcentage: %{percent}<extra></extra>"
+            hovertemplate="<b>%{label}</b><br>Montant: %{value:.2f}€<br>Pourcentage: %{percent}<extra></extra>"
         )])
         
         fig.update_layout(
@@ -133,11 +98,11 @@ def generate_expense_chart(chart_type='bar'):
             )]
         )
 
-    else:  # bar par défaut
-        # On utilise le graphique en ligne comme défaut
+    else:
+        # Line chart as default
         return generate_expense_chart('line')
 
-    # Configuration commune pour tous les graphiques
+    # Common layout updates
     fig.update_layout(
         font_family="Roboto",
         paper_bgcolor='rgba(0,0,0,0)',
@@ -146,26 +111,6 @@ def generate_expense_chart(chart_type='bar'):
         margin=dict(t=100, l=50, r=50, b=50),
         height=500,
         template='plotly_white'
-    )
-
-    # Amélioration des axes
-    fig.update_xaxes(
-        showgrid=True,
-        gridwidth=1,
-        gridcolor='rgba(128, 128, 128, 0.1)',
-        showline=True,
-        linewidth=1,
-        linecolor='rgba(128, 128, 128, 0.2)'
-    )
-    
-    fig.update_yaxes(
-        showgrid=True,
-        gridwidth=1,
-        gridcolor='rgba(128, 128, 128, 0.1)',
-        showline=True,
-        linewidth=1,
-        linecolor='rgba(128, 128, 128, 0.2)',
-        ticksuffix="€"
     )
 
     return fig.to_html(
@@ -177,3 +122,56 @@ def generate_expense_chart(chart_type='bar'):
             'modeBarButtonsToRemove': ['select2d', 'lasso2d']
         }
     )
+
+def plot_expenses_bar(data, date_column, amount_column, category_column):
+    """Create a bar chart showing expenses over time"""
+    fig = px.bar(data,
+                 x=date_column,
+                 y=amount_column,
+                 color=category_column,
+                 title='Dépenses au fil du temps',
+                 labels={
+                     date_column: 'Date',
+                     amount_column: 'Montant (€)',
+                     category_column: 'Catégorie'
+                 })
+    return fig
+
+def plot_cumulative_expenses(data, date_column, amount_column):
+    """Create a line chart showing cumulative expenses"""
+    cumsum = data.sort_values(date_column)[amount_column].cumsum()
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=data[date_column],
+        y=cumsum,
+        mode='lines',
+        name='Dépenses cumulées'
+    ))
+    fig.update_layout(
+        title='Évolution des dépenses cumulées',
+        xaxis_title='Date',
+        yaxis_title='Montant cumulé (€)'
+    )
+    return fig
+
+def plot_expense_distribution(data, amount_column, category_column):
+    """Create a scatter plot of expense distribution"""
+    fig = px.scatter(data,
+                    x=category_column,
+                    y=amount_column,
+                    color=category_column,
+                    title='Distribution des dépenses par catégorie',
+                    labels={
+                        amount_column: 'Montant (€)',
+                        category_column: 'Catégorie'
+                    })
+    return fig
+
+def plot_expense_histogram(data, amount_column, bins=30):
+    """Create a histogram of expense frequencies"""
+    fig = px.histogram(data,
+                      x=amount_column,
+                      nbins=bins,
+                      title='Distribution des montants des dépenses',
+                      labels={amount_column: 'Montant (€)'})
+    return fig
