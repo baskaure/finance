@@ -265,13 +265,15 @@ tr:hover .transaction-actions {
     position: absolute;
 }
 
+/* Remove duplicate legend styles */
 .legend-item {
     display: flex;
     align-items: center;
     margin: 5px;
     padding: 5px 10px;
     border-radius: 4px;
-    background: var(--background-color);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     position: relative;
     z-index: 2;
 }
@@ -324,32 +326,25 @@ tr:hover .transaction-actions {
 .plotly .ytitle,
 .plotly .legend text,
 .plotly .xtick text,
-.plotly .ytick text {
-    font-family: 'Roboto', sans-serif !important;
-}
-
+.plotly .ytick text,
 .plotly .hovertext {
     font-family: 'Roboto', sans-serif !important;
-    color: #000000 !important;
+    overflow: visible !important;
 }
 
-/* Dark theme hover and text */
+/* Unified dark theme chart styles */
 [data-theme="dark"] .plotly text,
 [data-theme="dark"] .plotly .gtitle,
 [data-theme="dark"] .plotly .xtitle,
 [data-theme="dark"] .plotly .ytitle,
 [data-theme="dark"] .plotly .xtick text,
 [data-theme="dark"] .plotly .ytick text,
-[data-theme="dark"] .plotly .hovertext {
-    font-family: 'Roboto', sans-serif;
+[data-theme="dark"] .plotly .hover text {
     fill: #ffffff !important;
     color: #ffffff !important;
 }
 
-[data-theme="dark"] .plotly .hoverlayer .hover {
-    fill: #1a1a1a !important;
-}
-
+[data-theme="dark"] .plotly .hoverlayer .hover,
 [data-theme="dark"] .plotly .hoverlayer .bg {
     fill: #1a1a1a !important;
     stroke: #404040 !important;
@@ -391,8 +386,11 @@ tr:hover .transaction-actions {
     min-height: 500px;
 }
 
+/* Pagination styles */
 .pagination {
     margin-bottom: 0;
+    display: flex;
+    gap: 5px;
 }
 
 .page-link {
@@ -400,26 +398,28 @@ tr:hover .transaction-actions {
     border: 1px solid var(--border-color);
     background: linear-gradient(135deg, var(--secondary-color), #2980b9);
     padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    border-radius: 8px;
 }
 
 .page-link:hover {
-    background-color: var(--hover-color);
-    color: var(--primary-color);
-    border-color: var(--border-color);
+    transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
 }
 
 .page-item.active .page-link {
-    background-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     border-color: var(--primary-color);
     color: white;
 }
 
 [data-theme="dark"] .page-link {
-    background-color: var(--bg-secondary);
+    background: linear-gradient(135deg, var(--bg-secondary), var(--secondary-color));
+    color: white;
 }
 
 [data-theme="dark"] .page-item.active .page-link {
-    background-color: var(--primary-color);
-    color: white;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
 }
