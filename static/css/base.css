@@ -390,3 +390,36 @@ tr:hover .transaction-actions {
     width: 100% !important;
     min-height: 500px;
 }
+
+.pagination {
+    margin-bottom: 0;
+}
+
+.page-link {
+    color: white;
+    border: 1px solid var(--border-color);
+    background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+    padding: 0.5rem 1rem;
+}
+
+.page-link:hover {
+    background-color: var(--hover-color);
+    color: var(--primary-color);
+    border-color: var(--border-color);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+[data-theme="dark"] .page-link {
+    background-color: var(--bg-secondary);
+}
+
+[data-theme="dark"] .page-item.active .page-link {
+    background-color: var(--primary-color);
+    color: white;
+}

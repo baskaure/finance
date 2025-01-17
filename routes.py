@@ -22,8 +22,14 @@ def handle_errors(f):
 @bp.route('/')
 @handle_errors
 def index():
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # Number of transactions per page
+    # Get paginated transactions
+    pagination = Transaction.query.order_by(Transaction.date.desc()).paginate(
+        page=page, per_page=per_page, error_out=False)
+    transactions = pagination.items
+    
     chart_type = request.args.get('chart_type', 'bar')
-    transactions = Transaction.query.order_by(desc(Transaction.date)).limit(10).all()
     chart = generate_expense_chart(chart_type)
     total_income = db.session.query(db.func.sum(Transaction.amount)).\
         filter(Transaction.type == 'revenu').scalar() or 0
@@ -32,6 +38,7 @@ def index():
     balance = total_income - total_expenses
     return render_template('index.html', 
                          transactions=transactions,
+                         pagination=pagination,
                          chart=chart,
                          balance=balance,
                          chart_type=chart_type)

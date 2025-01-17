@@ -13,7 +13,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             const toggle = document.getElementById('theme-toggle');
             const html = document.documentElement;
-            // Charge la préférence sauvegardée
             if (localStorage.theme === 'dark') {
                 toggle.checked = true;
                 html.setAttribute('data-theme', 'dark');

@@ -5,7 +5,7 @@ db = SQLAlchemy()
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(10), nullable=False)  # 'revenu' ou 'dépense'
+    type = db.Column(db.String(10), nullable=False)  
     amount = db.Column(db.Float, nullable=False)
     category = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(200))
